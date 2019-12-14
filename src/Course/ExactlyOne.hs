@@ -17,22 +17,19 @@ runExactlyOne (ExactlyOne a) = a
 mapExactlyOne :: (a -> b) -> ExactlyOne a -> ExactlyOne b
 mapExactlyOne f (ExactlyOne a)    = ExactlyOne (f a)
 
--- | P.fmap (+3) (ExactlyOne 10)
--- return ExactlyOne 13
+-- | like flatMap in scala
 bindExactlyOne :: (a -> ExactlyOne b) -> ExactlyOne a -> ExactlyOne b
 bindExactlyOne f (ExactlyOne a) = f a
 
--- | (ExactlyOne (\n -> (n + 3))) A.<*> (ExactlyOne 10)
--- return ExactlyOne 13
--- | (ExactlyOne (+3)) A.<*> (ExactlyOne 10)
+-- | P.fmap (+3) (ExactlyOne 10)
 -- return ExactlyOne 13
 instance P.Functor ExactlyOne where
   fmap =
     M.liftM
 
--- | (\n -> (ExactlyOne (n+3))) M.=<< (ExactlyOne 10)
+-- | (ExactlyOne (\n -> (n + 3))) A.<*> (ExactlyOne 10)
 -- return ExactlyOne 13
--- | (ExactlyOne 10) M.>>= (\n -> (ExactlyOne (n+3)))
+-- | (ExactlyOne (+3)) A.<*> (ExactlyOne 10)
 -- return ExactlyOne 13
 instance A.Applicative ExactlyOne where
   (<*>) =
@@ -40,6 +37,10 @@ instance A.Applicative ExactlyOne where
   pure =
     ExactlyOne
 
+-- | (\n -> (ExactlyOne (n+3))) M.=<< (ExactlyOne 10)
+-- return ExactlyOne 13
+-- | (ExactlyOne 10) M.>>= (\n -> (ExactlyOne (n+3)))
+-- return ExactlyOne 13
 instance P.Monad ExactlyOne where
   (>>=) =
     flip bindExactlyOne
