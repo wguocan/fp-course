@@ -111,12 +111,24 @@ optional _ a Empty =
 optional f _ (Full a) =
   f a
 
+-- | take both f and data from the box -- apply f to the data -- put the result to the box
+-- | applyOptional (Full (+3)) (Full 20) >>> Full 23
+-- | applyOptional (Full (+3)) $ Full 20 >>> Full 23
+--- TODO: check the implementation
 applyOptional :: Optional (a -> b) -> Optional a -> Optional b
 applyOptional f a = bindOptional (\f' -> mapOptional f' a) f
 
+-- | take data from the box -- apply f to the data -- put the result back to the box
+--- twiceOptional (+) (Full 20) (Full 30) >>> Full 50
+--- twiceOptional (:.) (Full 20) (Full (30:.31:.Nil)) >> Full [20,30,31]
+--- twiceOptional (++) (Full (20:.21:.Nil)) (Full (30:.31:.Nil)) >>> Full [20,21,30,31]
 twiceOptional :: (a -> b -> c) -> Optional a -> Optional b -> Optional c
 twiceOptional f = applyOptional . mapOptional f
 
+-- | contains 20 $ Full 20
+---- True
+-- | contains 20 $ Full 21
+---- False
 contains :: Eq a => a -> Optional a -> Bool
 contains _ Empty = False
 contains a (Full z) = a == z
